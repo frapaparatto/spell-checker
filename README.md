@@ -13,14 +13,14 @@ In cases where there are multiple words with the same minimum distance, the spel
 
 ## How to use
 
-1. **Installation**
-   This project does not have any external dependencies. You only need Python 3 to run it.
+1. **Installation**: this project does not have any external dependencies. You only need Python 3 to run it.
 
-2. **Running the spell checker**
-   To start the spell checker, run the `main.py` file:
+2. **Running the spell checker**: to start the spell checker, run the `main.py` file:
+
    ```bash
    python main.py
    ```
+
    The program will prompt you to enter a search query. Type your query and press Enter. The spell checker will then provide suggestions for any misspelled words in the query.
 
    To exit the program, type `quit` and press Enter.
