@@ -19,8 +19,6 @@ class TestCorrector(unittest.TestCase):
     def tearDown(self) -> None:
         _suggest_correction_cached.cache_clear()
 
-    # --- tokenizer ---
-
     def test_tokenize_single_word_query(self):
         result = query_tokenizer("suggestion")
 
@@ -39,22 +37,16 @@ class TestCorrector(unittest.TestCase):
     def test_tokenize_strips_extra_spaces(self):
         self.assertEqual(query_tokenizer("sales  report"), ["sales", "report"])
 
-    # --- suggest_correction: exact match ---
-
     def test_correct_query_returns_same_word(self):
         result = suggest_correction("hello", self.dictionary, max_distance=2)
 
         self.assertEqual(result, "hello")
-
-    # --- suggest_correction: probability tiebreak ---
 
     def test_same_distance_chooses_higher_probability(self):
         # "helo" is distance 1 from "hello" (100), "help" (60), "held" (40)
         result = suggest_correction("helo", self.dictionary, max_distance=2)
 
         self.assertEqual(result, "hello")
-
-    # --- suggest_correction: transposition ---
 
     def test_transposition_is_corrected(self):
         # "saels" is one transposition away from "sales" (s-a-e-l-s vs s-a-l-e-s)
@@ -70,8 +62,6 @@ class TestCorrector(unittest.TestCase):
         result = suggest_correction("reprot", self.dictionary, max_distance=1)
 
         self.assertEqual(result, "report")
-
-    # --- suggest_correction: no candidate ---
 
     def test_no_candidate_returns_original_query(self):
         # "zzz" has no dictionary word within any reasonable distance
