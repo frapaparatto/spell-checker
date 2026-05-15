@@ -37,6 +37,18 @@ class TestDamerauLevDistance(unittest.TestCase):
         result = damerau_levenshtein_distance("house", "hosue", best_distance_found=2)
         self.assertEqual(result, 1)
 
+    def test_transposition_mid_word(self):
+        # Transposition of 'l' and 'e' at positions 3-4 in a 5-letter word
+        # "saels" = s-a-e-l-s, "sales" = s-a-l-e-s
+        result = damerau_levenshtein_distance("saels", "sales", best_distance_found=3)
+        self.assertEqual(result, 1)
+
+    def test_transposition_counts_as_one_not_two(self):
+        # Standard Levenshtein gives distance 2 for a transposition (delete + insert).
+        # DL must give 1. If this returns 2, the algorithm is standard Levenshtein.
+        result = damerau_levenshtein_distance("ab", "ba", best_distance_found=3)
+        self.assertEqual(result, 1)
+
     def test_multiple_transpositions(self):
         result = damerau_levenshtein_distance("abcd", "badc", best_distance_found=3)
         self.assertEqual(result, 2)
@@ -46,6 +58,21 @@ class TestDamerauLevDistance(unittest.TestCase):
             "kitten", "sitting", best_distance_found=4
         )
         self.assertEqual(result, 3)
+
+    def test_symmetry(self):
+        pairs = [
+            ("hello", "helo"),
+            ("cat", "bat"),
+            ("hte", "the"),
+            ("kitten", "sitting"),
+            ("ab", "ba"),
+        ]
+        for a, b in pairs:
+            with self.subTest(a=a, b=b):
+                self.assertEqual(
+                    damerau_levenshtein_distance(a, b, best_distance_found=10),
+                    damerau_levenshtein_distance(b, a, best_distance_found=10),
+                )
 
     def test_early_stop(self):
         result = damerau_levenshtein_distance("hello", "world", best_distance_found=2)
@@ -61,6 +88,12 @@ class TestDamerauLevDistance(unittest.TestCase):
             "completely", "different", best_distance_found=3
         )
         self.assertIsNone(result)
+
+    def test_early_stop_exact_threshold(self):
+        # A word exactly at the threshold must be returned, not pruned.
+        # "cat" vs "bat" is distance 1; best_distance_found=1 must return 1, not None.
+        result = damerau_levenshtein_distance("cat", "bat", best_distance_found=1)
+        self.assertEqual(result, 1)
 
 
 if __name__ == "__main__":
