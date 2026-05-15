@@ -12,9 +12,6 @@ def load_file(filepath: str) -> str:
     with open(filepath, "r") as file:
         text = file.read()
 
-    if not file:
-        raise ValueError("The file is empty")
-
     return text
 
 
@@ -42,5 +39,5 @@ def load_config(filepath: str) -> Dict:
     if not filepath or not os.path.exists(filepath):
         raise FileNotFoundError(f"File '{filepath}' not found.")
 
-    with open("config.json", "r") as file:
+    with open(filepath, "r") as file:
         return json.load(file)
