@@ -44,5 +44,3 @@ def damerau_levenshtein_distance(
             return None
 
     return table[-1][-1]
-
-

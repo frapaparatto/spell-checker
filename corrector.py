@@ -4,9 +4,7 @@ from algorithms.damerau_levenshtein import damerau_levenshtein_distance
 
 
 def query_tokenizer(query: str) -> List[str]:
-    """Tokenize multi-word queries in single-word tokens.
-    Separator: space.
-    """
+    """Split a multi-word query into individual tokens."""
     return query.split()
 
 

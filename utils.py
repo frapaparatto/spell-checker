@@ -9,7 +9,7 @@ def load_file(filepath: str) -> str:
     if not filepath or not os.path.exists(filepath):
         raise FileNotFoundError(f"File '{filepath}' not found.")
 
-    with open(filepath, "r") as file:
+    with open(filepath, "r", encoding="utf-8") as file:
         text = file.read()
 
     return text
@@ -20,8 +20,7 @@ def create_dictionary(text: str) -> Dict[str, int]:
     if not text:
         raise ValueError("Text file is empty, can't create the dictionary.")
 
-    words = re.findall(r"\w+", text.lower())  # list of words
-    # return a dictionary with the count of all occurrences of each word
+    words = re.findall(r"\w+", text.lower())
     return Counter(words)
 
 
@@ -39,5 +38,5 @@ def load_config(filepath: str) -> Dict:
     if not filepath or not os.path.exists(filepath):
         raise FileNotFoundError(f"File '{filepath}' not found.")
 
-    with open(filepath, "r") as file:
+    with open(filepath, "r", encoding="utf-8") as file:
         return json.load(file)

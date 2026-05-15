@@ -29,6 +29,21 @@ python main.py
 
 Enter a search query at the prompt. Type `quit` to exit.
 
+```
+Search (or 'quit' to exit): sles reprt
+Do you mean: sales report
+```
+
+No external dependencies. Requires Python 3.10+.
+
+## Testing
+
+```
+python -m unittest discover tests/ -v
+```
+
+32 tests across three modules: the Damerau-Levenshtein algorithm, the correction engine, and the utility functions.
+
 ## Benchmark
 
 cProfile output for the query `"sles reprt"`:
