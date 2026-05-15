@@ -41,29 +41,26 @@ def main():
             print("Exiting")
             sys.exit()
 
-        if research_query:
-            break
+        if not research_query:
+            print("\nPlease, insert a search query.")
+            continue
 
-        print("\nPlease, insert a search query.")
+        with cProfile.Profile() as profile:
+            suggestions = [
+                suggest_correction(
+                    query.strip(),
+                    dictionary,
+                    max_distance=get_max_distance(len(query), config),
+                )
+                for query in query_tokenizer(research_query)
+                if query
+            ]
 
-    with cProfile.Profile() as profile:
-        suggestions = [
-            # max_distance parameter will be 1 if the query contains less than 4 chars, else 2
-            suggest_correction(
-                query.strip(),
-                dictionary,
-                max_distance=get_max_distance(len(query), config),
-            )
-            for query in query_tokenizer(research_query)
-            if query
-        ]
+            suggestion = " ".join(suggestions)
+            print(f"Do you mean: {suggestion}")
 
-        suggestion = " ".join(suggestions)
-        print(f"Do you mean: {suggestion}")
-
-    stats = pstats.Stats(profile).sort_stats(pstats.SortKey.TIME)
-    # print stats only for modules that contains those name patterns
-    stats.print_stats("corrector|utils|algorithms|main")
+        stats = pstats.Stats(profile).sort_stats(pstats.SortKey.TIME)
+        stats.print_stats("corrector|utils|algorithms|main")
 
 
 if __name__ == "__main__":

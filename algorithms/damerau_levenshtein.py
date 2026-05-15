@@ -16,6 +16,7 @@ def damerau_levenshtein_distance(
         table[j][0] = j
 
     for j in range(1, len(str2) + 1):
+        row_min = table[j][0]
         for i in range(1, len(str1) + 1):
             if str2[j - 1] == str1[i - 1]:
                 table[j][i] = table[j - 1][i - 1]
@@ -36,9 +37,10 @@ def damerau_levenshtein_distance(
 
                 table[j][i] = cost
 
-        # if the minimum distance value so far is exceed, early stop
-        # use j because this row has just been calculated
-        if min(table[j]) > best_distance_found:
+            if table[j][i] < row_min:
+                row_min = table[j][i]
+
+        if row_min > best_distance_found:
             return None
 
     return table[-1][-1]

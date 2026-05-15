@@ -12,9 +12,6 @@ def query_tokenizer(query: str) -> List[str]:
 
 def calculate_probability(word: str, words: Dict[str, int], total_words: int) -> float:
     """Calculate the probability of each single word in the dictionary."""
-    if word not in words:
-        raise KeyError(f"Word: {word} not in dictionary.")
-
     return words[word] / total_words
 
 
