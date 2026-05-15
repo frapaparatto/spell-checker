@@ -1,4 +1,5 @@
-from typing import Dict, List
+import functools
+from typing import Dict, List, Tuple
 from algorithms.damerau_levenshtein import damerau_levenshtein_distance
 
 
@@ -9,26 +10,28 @@ def query_tokenizer(query: str) -> List[str]:
     return query.split()
 
 
-def calculate_probability(word: str, words: Dict[str, int]) -> float:
+def calculate_probability(word: str, words: Dict[str, int], total_words: int) -> float:
     """Calculate the probability of each single word in the dictionary."""
     if word not in words:
         raise KeyError(f"Word: {word} not in dictionary.")
 
-    return words[word] / sum(words.values())
+    return words[word] / total_words
 
 
-def suggest_correction(
-    query: str, dictionary: Dict[str, int], max_distance: int
+@functools.lru_cache(maxsize=128)
+def _suggest_correction_cached(
+    query: str, dictionary: Tuple[Tuple[str, int], ...], max_distance: int
 ) -> str:
-    """Main correction function."""
+    dict_lookup = dict(dictionary)
 
-    if query in dictionary:
+    if query in dict_lookup:
         return query
 
+    total_words = sum(dict_lookup.values())
     candidates = []
     best_distance_found = max_distance
 
-    for word in dictionary:
+    for word in dict_lookup:
         if abs(len(word) - len(query)) > max_distance:
             continue
 
@@ -50,4 +53,11 @@ def suggest_correction(
         word for word, distance in candidates if distance == best_distance_found
     ]
 
-    return max(best_candidates, key=lambda x: calculate_probability(x, dictionary))
+    return max(best_candidates, key=lambda x: calculate_probability(x, dict_lookup, total_words))
+
+
+def suggest_correction(
+    query: str, dictionary: Dict[str, int], max_distance: int
+) -> str:
+    """Main correction function."""
+    return _suggest_correction_cached(query, tuple(sorted(dictionary.items())), max_distance)
