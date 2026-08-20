@@ -1,16 +1,16 @@
-# Searchify
+# Spellchecker
 
-Searchify is a spelling correction engine for enterprise search: it detects and corrects user typing errors before a query reaches the search index.
+A spelling correction engine for search queries: it detects and corrects typing errors before a query reaches the search index.
 
 ## Design decisions
 
-**Algorithm choice.** I chose Damerau-Levenshtein over standard Levenshtein because transpositions (e.g. "teh" → "the") are the most common real typing error, and Levenshtein counts them as two operations while Damerau-Levenshtein counts them as one, making the distance metric more accurate for this error distribution. Supported operations: insertion, deletion, substitution, transposition.
+**Algorithm choice.** Damerau-Levenshtein distance, not standard Levenshtein, because transpositions ("teh" -> "the") are the most common typing error. Levenshtein counts a transposition as two operations; Damerau-Levenshtein counts it as one, which makes the distance metric a better fit for this error distribution. Supported operations: insertion, deletion, substitution, transposition.
 
-**Multi-word architecture.** I separated the engine into a single-word correction core and a query orchestrator because correcting one token at a time is not the real problem: users search with phrases like "raporto vendite 2023". The orchestrator tokenizes the full query, delegates each token to the core engine, and recombines the result. This allows independent testing of each layer.
+**Multi-word architecture.** The engine is split into a single-word correction core and a query orchestrator, because correcting one token at a time isn't the real problem: users search with phrases like "raporto vendite 2023". The orchestrator tokenizes the full query, delegates each token to the core engine, and recombines the result. Splitting the layers keeps each one independently testable.
 
-**Correction vs suggestion.** Whether to present a correction as "Did you mean?" or silent auto-correction is a product decision, not an algorithm decision. The engine always returns the most probable correction; surfacing it is left to the caller.
+**Correction vs. suggestion.** Whether to present a correction as "Did you mean?" or apply it silently is a product decision, not an algorithm one. The engine always returns its most probable correction; how that's surfaced is left to the caller.
 
-**What this project does not do.** Search indexing, document ranking and retrieval, HTTP API, language detection: all explicitly out of scope.
+**Out of scope.** Search indexing, document ranking and retrieval, an HTTP API, and language detection.
 
 ## Configuration
 
@@ -18,8 +18,10 @@ Settings are loaded from `config.json` at startup.
 
 | Parameter | Description |
 |---|---|
-| `max_distance_short` | Edit distance threshold for short words. Tighter bound prevents false positives. |
-| `max_distance_long` | Edit distance threshold for long words. |
+| `dictionary.english_path` | Path to the general-purpose word list. |
+| `dictionary.business_path` | Path to the domain-specific word list, merged with the English one. |
+| `algorithm.max_distance_short` | Edit distance threshold for short words. A tighter bound prevents false positives on short strings. |
+| `algorithm.max_distance_long` | Edit distance threshold for long words. |
 
 ## Usage
 
@@ -62,7 +64,7 @@ ncalls  tottime  percall  cumtime  percall  function
     2   0.000    0.000    0.000    0.000    sum (builtin)
 ```
 
-The dominant cost is `damerau_levenshtein_distance` (0.244 s of 0.405 s). The LRU cache on `_suggest_correction_cached` ensures each unique misspelling is corrected only once; `sum` is called twice (once per word), not inside any loop. Length pre-filtering via `abs` eliminates candidates before the expensive distance computation.
+`damerau_levenshtein_distance` dominates the cost (0.244 s of 0.405 s). The LRU cache on `_suggest_correction_cached` means each unique misspelling is corrected only once; `sum` is called twice (once per word), not inside a loop. Length pre-filtering via `abs` eliminates candidates before the expensive distance computation.
 
 ## License
 
